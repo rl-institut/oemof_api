@@ -19,6 +19,10 @@ You have to start redis-server
 (to stop it use `service redis-server stop`)
 Move to `task_queue` and run `. setup_redis.sh` to start the celery queue with redis a message
  broker.
+We cannot use celery, as there is a dependency conflict (click versions differ) with oemof_tabular.
+Instead, we are going for [RQ](https://github.com/rq/rq) (Redis Queue) 
+(from docs: "RQ (Redis Queue) is a simple Python library for queueing jobs and processing them in the background with workers. 
+It is backed by Redis and it is designed to have a low barrier to entry. It should be integrated in your web stack easily.")
 
 ### Using [RabbitMQ](https://www.rabbitmq.com/getstarted.html)
 

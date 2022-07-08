@@ -16,4 +16,4 @@ services:
     depends_on:
       - redis
   redis:
-    image: redis
+    image: redis:5.0

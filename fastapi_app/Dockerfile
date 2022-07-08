@@ -1,23 +1,73 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
+# Manuals from
+# https://pythonspeed.com/articles/conda-docker-image-size/
+# https://pythonspeed.com/articles/activate-conda-dockerfile/
+# https://jcristharif.com/conda-docker-tips.html
+FROM continuumio/miniconda3 AS build
 
-ENV CELERY_BROKER_URL redis://redis:6379/0
-ENV CELERY_RESULT_BACKEND redis://redis:6379/0
-ENV C_FORCE_ROOT true
+ENV PYTHONDONTWRITEBYTECODE=true
 
-ENV HOST 0.0.0.0
-ENV PORT 5001
-ENV DEBUG true
+# Install the package as normal:
+COPY environment.yml .
+RUN conda env create -f environment.yml
 
-COPY . /fastapi_app
-WORKDIR /fastapi_app
+# Install conda-pack:
+RUN conda install --freeze-installed -c conda-forge conda-pack
+
+# Use conda-pack to create a standalone environment
+# in /venv:
+RUN conda-pack -n oemof_api -o /tmp/env.tar && \
+  mkdir /venv && cd /venv && tar xf /tmp/env.tar && \
+  rm /tmp/env.tar
+
+# Clean conda and remove unnecessary files
+RUN \
+  conda clean -afy \
+  && find /opt/conda/ -follow -type f -name '*.a' -delete \
+  && find /opt/conda/ -follow -type f -name '*.pyc' -delete \
+  && find /opt/conda/ -follow -type f -name '*.js.map' -delete
+
+# We've put venv in same path it'll be in final image,
+# so now fix up paths:
+RUN /venv/bin/conda-unpack
+
+# The runtime-stage image; we can use Debian as the
+# base image since the Conda env also includes Python
+# for us.
+FROM debian:buster-slim AS runtime
+
+RUN apt-get update \
+  # dependencies for building Python packages
+  && apt-get install -y build-essential \
+  && apt-get install -y git \
+  # Remove unnecessary apt files
+  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN addgroup --system api_user \
+    && adduser --system --ingroup api_user api_user
+
+# Copy /venv from the previous stage:
+COPY --from=build /venv /venv
 
 # install requirements
-RUN python -m pip install --upgrade pip
-RUN pip install -r requirements.txt
-RUN pip install gunicorn
+WORKDIR /tmp
+SHELL ["/bin/bash", "-c"]
+COPY ./pyproject.toml ./poetry.lock ./
+RUN source /venv/bin/activate && python -m pip install --upgrade pip && pip install --no-cache-dir poetry && poetry install --no-root
 
-# expose the app port
+ENV BASH_ENV "/home/api_user/.bashrc"
+RUN echo "source /venv/bin/activate" > /home/api_user/.bashrc
+
+COPY . /fastapi_app
+RUN chown -R api_user /fastapi_app
+
+USER api_user
+
+WORKDIR /fastapi_app
+
 EXPOSE 5001
+
+ENTRYPOINT ["/entrypoint"]
 
 # run the app server, the last argument match the app variable in the webapp.py file
 CMD ["uvicorn", "webapp:app", "--host", "0.0.0.0", "--port", "5001"]
