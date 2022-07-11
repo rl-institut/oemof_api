@@ -20,8 +20,8 @@ You have to start redis-server
 Move to `task_queue` and run `. setup_redis.sh` to start the celery queue with redis a message
  broker.
 We cannot use celery, as there is a dependency conflict (click versions differ) with oemof_tabular.
-Instead, we are going for [RQ](https://github.com/rq/rq) (Redis Queue) 
-(from docs: "RQ (Redis Queue) is a simple Python library for queueing jobs and processing them in the background with workers. 
+Instead, we are going for [RQ](https://github.com/rq/rq) (Redis Queue)
+(from docs: "RQ (Redis Queue) is a simple Python library for queueing jobs and processing them in the background with workers.
 It is backed by Redis and it is designed to have a low barrier to entry. It should be integrated in your web stack easily.")
 
 ### Using [RabbitMQ](https://www.rabbitmq.com/getstarted.html)
@@ -54,4 +54,3 @@ The output will then be located in `docs/_build/html` and can be opened with you
 ## Code linting
 
 Use `black .` to lint the python files inside the repo
-

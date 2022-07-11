@@ -1,7 +1,10 @@
+"""API settings"""
+
 import os
 import pathlib
-import dotenv
 import warnings
+
+import dotenv
 
 SERVER_ROOT = pathlib.Path(__file__).parent
 ROOT_DIR = SERVER_ROOT.parent

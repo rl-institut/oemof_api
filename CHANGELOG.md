@@ -41,7 +41,3 @@ Here is a template for new release sections
 
 
 ### Removed
-
-
-
-
