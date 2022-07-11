@@ -58,7 +58,7 @@ RUN source /venv/bin/activate && python -m pip install --upgrade pip && pip inst
 ENV BASH_ENV "/home/api_user/.bashrc"
 RUN echo "source /venv/bin/activate" > /home/api_user/.bashrc
 
-COPY . /fastapi_app
+COPY ./fastapi_app /fastapi_app
 RUN chown -R api_user /fastapi_app
 
 USER api_user

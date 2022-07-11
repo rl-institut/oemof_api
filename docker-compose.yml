@@ -2,8 +2,8 @@ version: "3"
 services:
   web:
     build:
-      context: ./fastapi_app
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./fastapi_app/Dockerfile
     restart: always
     ports:
      - "5001:5001"
