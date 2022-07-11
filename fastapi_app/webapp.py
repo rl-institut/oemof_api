@@ -64,7 +64,8 @@ async def check_job(job_id: str) -> JSONResponse:
     job = q.fetch_job(job_id)
     if (status := job.get_status()) != "finished":
         return JSONResponse(content=status)
-    return JSONResponse(content=job.result)
+    results = simulation.restore_results(simulation_id=job.result)
+    return JSONResponse(content=results)
 
 
 if __name__ == "__main__":
