@@ -1,3 +1,3 @@
 
 REDIS_URL=redis://localhost:6379
-DATABASE_URL=postgresql://oemof_api_user:apiapi@localhost:5432/oemof_api
+#DATABASE_URL=postgresql://oemof_api_user:apiapi@localhost:5432/oemof_api

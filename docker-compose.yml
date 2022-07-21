@@ -4,16 +4,29 @@ services:
     build:
       context: .
       dockerfile: ./fastapi_app/Dockerfile
+    image: oemof_api_web
     restart: always
     ports:
-     - "5001:5001"
+      - "5001:5001"
+    environment:
+      - ENV=.production
     depends_on:
       - redis
+    networks:
+      - redis
   worker:
-    build:
-      context: task_queue
-      dockerfile: Dockerfile
+    image: oemof_api_rq
+    environment:
+      - ENV=.production
     depends_on:
+      - redis
+    command: "rq worker"
+    networks:
       - redis
   redis:
     image: redis:5.0
+    networks:
+      - redis
+
+networks:
+  redis:

@@ -19,7 +19,7 @@ if env_file == ".local":
 dotenv.load_dotenv(ROOT_DIR / ".envs" / env_file)
 
 REDIS_URL = os.environ.get("REDIS_URL")
-DATABASE_URL = os.environ.get("DATABASE_URL")
+DATABASE_URL = os.environ.get("DATABASE_URL", f"sqlite://{ROOT_DIR}/db.sql")
 
 engine = create_engine(DATABASE_URL)
 metadata = MetaData(bind=engine)
